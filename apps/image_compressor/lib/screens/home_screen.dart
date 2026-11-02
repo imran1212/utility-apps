@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (output == null) return;
     await Share.shareXFiles(
       [XFile(output.path, mimeType: 'image/jpeg')],
-      text: 'Compressed with Image Compressor',
+      text: 'Compressed with Image Compressor by SVSystem',
     );
   }
 
@@ -148,6 +148,54 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAF3FF),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFD4E5FF)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0758C8),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.compress_rounded, color: Colors.white),
+                  ),
+                  const SizedBox(width: 11),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Image Compressor',
+                          style: TextStyle(
+                            color: Color(0xFF082B63),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'A product of SVSystem',
+                          style: TextStyle(
+                            color: Color(0xFF0758C8),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.verified_rounded, color: Color(0xFF0758C8)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
             Text(
               'Smaller images.\nMore space.',
               style: theme.textTheme.headlineMedium?.copyWith(
@@ -345,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 12),
             Center(
               child: Text(
-                'Free • Private • Works offline',
+                'SVSystem  •  Small Tools for Everyday Use',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
