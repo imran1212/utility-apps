@@ -177,8 +177,32 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _saving = true);
     try {
       final files = _batchOutputs.isNotEmpty ? _batchOutputs : [output];
-      for (final file in files) { await Gal.putImage(file.path); }
-      _showMessage(files.length == 1 ? 'Saved to your gallery.' : files.length.toString() + ' images saved.');
+      // Gal handles platform-specific gallery access; explicitly request it
+      // before saving so users see Android's permission prompt when required.
+      var hasAccess = await Gal.hasAccess();
+      if (!hasAccess) {
+        hasAccess = await Gal.requestAccess();
+      }
+      if (!hasAccess) {
+        _showMessage(
+          'Gallery permission was not granted. Allow photo access in Android Settings, then try Save again.',
+          isError: true,
+        );
+        return;
+      }
+      var savedCount = 0;
+      for (final file in files) {
+        if (!await file.exists()) {
+          throw const FileSystemException('Compressed image file is missing.');
+        }
+        await Gal.putImage(file.path);
+        savedCount++;
+      }
+      _showMessage(
+        savedCount == 1
+            ? 'Saved to your phone gallery. Check the Pictures album.'
+            : '$savedCount images saved to your phone gallery.',
+      );
     } on GalException catch (error) {
       _showMessage(error.type.message, isError: true);
     } catch (_) {
