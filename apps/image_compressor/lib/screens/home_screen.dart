@@ -130,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _source = File(picked.path);
         _output = null;
         _result = null;
+        _batchOutputs = [];
         _error = null;
       });
     } catch (error) {
@@ -321,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.verified, color: _premium ? const Color(0xFF1687F8) : const Color(0xFF0758C8)),
+                  Icon(_premium ? Icons.verified : Icons.verified_outlined, color: _premium ? const Color(0xFF1687F8) : const Color(0xFF0758C8)),
                 ],
               ),
             ),
