@@ -40,25 +40,22 @@ class _BrandSplashScreen extends StatefulWidget {
 }
 
 class _BrandSplashScreenState extends State<_BrandSplashScreen> {
-  bool _readyToContinue = false;
-  bool _opening = false;
-
   @override
   void initState() {
     super.initState();
-    // Show a clear fallback action after 2.5 seconds instead of leaving users
-    // on a blank-looking launch screen if the automatic transition is delayed.
-    Future<void>.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) setState(() => _readyToContinue = true);
+    // Splash is branding only: no banner, interstitial, or other ad is shown.
+    // Automatically open the home screen after a short branded intro.
+    Future<void>.delayed(const Duration(milliseconds: 2000), () {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder<void>(
+          pageBuilder: (_, __, ___) => const HomeScreen(),
+          transitionDuration: const Duration(milliseconds: 250),
+          transitionsBuilder: (_, animation, __, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      );
     });
-  }
-
-  void _continueToApp() {
-    if (_opening) return;
-    setState(() => _opening = true);
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-    );
   }
 
   @override
