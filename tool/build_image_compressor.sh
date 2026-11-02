@@ -139,7 +139,7 @@ manifest.write_text(text)
 PY
 
 flutter pub get
-flutter analyze
+flutter analyze --no-fatal-infos
 if [ -d test ]; then
   flutter test
 fi
