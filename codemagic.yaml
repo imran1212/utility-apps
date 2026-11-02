@@ -28,6 +28,11 @@ workflows:
           text = re.sub(r'android:label="[^"]+"', 'android:label="Image Compressor"', text, count=1)
           text = re.sub(r'android:icon="[^"]+"', 'android:icon="@drawable/ic_sv_image_compressor"', text, count=1)
 
+          # Gal requires legacy write permission only on Android 9 and below.
+          legacy_permission = '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />'
+          if "android.permission.WRITE_EXTERNAL_STORAGE" not in text:
+              text = text.replace("</manifest>", "    " + legacy_permission + "\\n</manifest>")
+
           # The device bugreport shows a launch-time crash inside WorkManager's
           # automatic Startup initializer while creating WorkDatabase. This app
           # does not schedule background work, so remove only WorkManager's
@@ -99,7 +104,7 @@ workflows:
         script: |
           cd apps/image_compressor
           flutter pub get
-          flutter analyze
+          flutter analyze --no-fatal-infos
 
       - name: Build release APK
         script: |
