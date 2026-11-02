@@ -132,9 +132,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Image Compressor',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Image Compressor',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
+            ),
+            Text(
+              'by SVSystem',
+              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+            ),
+          ],
         ),
         actions: [
           IconButton(
