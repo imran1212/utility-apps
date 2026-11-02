@@ -16,6 +16,8 @@ workflows:
           cd apps/image_compressor
           if [ ! -d android ]; then
             flutter create --platforms=android --org com.utilityapps .
+            # Remove Flutter's generated sample test, which references the old MyApp class.
+            rm -f test/widget_test.dart
           fi
           python3 - <<'PY'
           from pathlib import Path
