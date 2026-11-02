@@ -49,7 +49,7 @@ jobs:
               text = text.replace('android:label="image_compressor"', 'android:label="Image Compressor"')
           permission = '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />'
           if permission not in text:
-              text = text.replace("<application", f"    {permission}\\n    <application", 1)
+              text = text.replace("<application", f"    {permission}\n    <application", 1)
           marker = "com.google.android.gms.ads.APPLICATION_ID"
           if marker not in text:
               meta = """
@@ -58,7 +58,7 @@ jobs:
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
                       android:value="ca-app-pub-3940256099942544~3347511713" />
               """
-              text = text.replace("</application>", meta + "\\n    </application>")
+              text = text.replace("</application>", meta + "\n    </application>")
           manifest.write_text(text)
           PY
 
