@@ -57,6 +57,20 @@ workflows:
           """)
           PY
 
+      - name: Generate 512x512 Play Store brand icon
+        script: |
+          python3 -m pip install --user cairosvg
+          mkdir -p apps/image_compressor/build/branding
+          python3 - <<'PY'
+          import cairosvg
+          cairosvg.svg2png(
+              url="apps/image_compressor/assets/branding/image_compressor_512.svg",
+              write_to="apps/image_compressor/build/branding/image_compressor_512.png",
+              output_width=512,
+              output_height=512,
+          )
+          PY
+
       - name: Resolve app dependencies and analyze
         script: |
           cd apps/image_compressor
@@ -74,6 +88,7 @@ workflows:
           flutter build appbundle --release
 
     artifacts:
+      - apps/image_compressor/build/branding/image_compressor_512.png
       - apps/image_compressor/build/app/outputs/flutter-apk/*.apk
       - apps/image_compressor/build/app/outputs/bundle/release/*.aab
       - apps/image_compressor/build/**/outputs/**/*.mapping.txt
