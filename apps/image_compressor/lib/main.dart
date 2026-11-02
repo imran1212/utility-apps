@@ -163,27 +163,14 @@ class _BrandSplashScreenState extends State<_BrandSplashScreen> {
                   style: TextStyle(color: Color(0xFF536987), fontSize: 12),
                 ),
                 const SizedBox(height: 28),
-                if (_readyToContinue)
-                  FilledButton.icon(
-                    onPressed: _opening ? null : _continueToApp,
-                    icon: const Icon(Icons.arrow_forward_rounded),
-                    label: Text(_opening ? 'Opening…' : 'Continue to App'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: _brandBlue,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(210, 50),
-                      textStyle: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  )
-                else
-                  const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: _brandBlue,
-                    ),
+                const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: _brandBlue,
                   ),
+                ),
               ],
             ),
           ),
