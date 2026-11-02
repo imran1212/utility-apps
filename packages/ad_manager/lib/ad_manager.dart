@@ -3,13 +3,74 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdService {
   AdService._();
-  static Future<void> initialize() async => MobileAds.instance.initialize();
+
   static const androidTestBannerId = 'ca-app-pub-3940256099942544/9214589741';
+  static const androidTestInterstitialId =
+      'ca-app-pub-3940256099942544/1033173712';
+
+  static InterstitialAd? _interstitial;
+  static bool _initialized = false;
+  static int _successfulCompressions = 0;
+
+  static Future<void> initialize() async {
+    try {
+      await MobileAds.instance.initialize();
+      _initialized = true;
+      _loadInterstitial();
+    } catch (error) {
+      debugPrint('AdMob initialization skipped: $error');
+    }
+  }
+
+  static void _loadInterstitial() {
+    if (!_initialized || _interstitial != null) return;
+    InterstitialAd.load(
+      adUnitId: androidTestInterstitialId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _interstitial = ad;
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('Interstitial ad failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  static void onCompressionCompleted() {
+    _successfulCompressions++;
+    if (_successfulCompressions < 4) return;
+    final ad = _interstitial;
+    if (ad == null) {
+      _loadInterstitial();
+      return;
+    }
+    _successfulCompressions = 0;
+    _interstitial = null;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (closedAd) {
+        closedAd.dispose();
+        _loadInterstitial();
+      },
+      onAdFailedToShowFullScreenContent: (failedAd, error) {
+        failedAd.dispose();
+        _loadInterstitial();
+      },
+    );
+    ad.show();
+  }
+
+  static void dispose() {
+    _interstitial?.dispose();
+    _interstitial = null;
+  }
 }
 
 class BannerAdSlot extends StatefulWidget {
   const BannerAdSlot({super.key, required this.adUnitId});
   final String adUnitId;
+
   @override
   State<BannerAdSlot> createState() => _BannerAdSlotState();
 }
@@ -27,7 +88,10 @@ class _BannerAdSlotState extends State<BannerAdSlot> {
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          if (!mounted) { ad.dispose(); return; }
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
           setState(() => _loaded = true);
         },
         onAdFailedToLoad: (ad, error) {
@@ -39,7 +103,10 @@ class _BannerAdSlotState extends State<BannerAdSlot> {
   }
 
   @override
-  void dispose() { _ad?.dispose(); super.dispose(); }
+  void dispose() {
+    _ad?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
