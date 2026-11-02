@@ -40,21 +40,25 @@ class _BrandSplashScreen extends StatefulWidget {
 }
 
 class _BrandSplashScreenState extends State<_BrandSplashScreen> {
+  bool _readyToContinue = false;
+  bool _opening = false;
+
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(const Duration(milliseconds: 1500), () {
-      if (!mounted) return;
-      // Do not block first launch with a full-screen ad. Open the tool directly.
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => const HomeScreen(),
-          transitionDuration: const Duration(milliseconds: 350),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
-      );
+    // Show a clear fallback action after 2.5 seconds instead of leaving users
+    // on a blank-looking launch screen if the automatic transition is delayed.
+    Future<void>.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted) setState(() => _readyToContinue = true);
     });
+  }
+
+  void _continueToApp() {
+    if (_opening) return;
+    setState(() => _opening = true);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+    );
   }
 
   @override
@@ -161,6 +165,28 @@ class _BrandSplashScreenState extends State<_BrandSplashScreen> {
                   'Small Tools for Everyday Use',
                   style: TextStyle(color: Color(0xFF536987), fontSize: 12),
                 ),
+                const SizedBox(height: 28),
+                if (_readyToContinue)
+                  FilledButton.icon(
+                    onPressed: _opening ? null : _continueToApp,
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text(_opening ? 'Opening…' : 'Continue to App'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _brandBlue,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(210, 50),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  )
+                else
+                  const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: _brandBlue,
+                    ),
+                  ),
               ],
             ),
           ),
