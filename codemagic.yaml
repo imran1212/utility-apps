@@ -1,0 +1,63 @@
+workflows:
+  image-compressor-android:
+    name: Image Compressor - Android APK and AAB
+    max_build_duration: 60
+    environment:
+      flutter: stable
+    scripts:
+      - name: Install Melos and bootstrap workspace
+        script: |
+          dart pub global activate melos 6.3.2
+          export PATH="$HOME/.pub-cache/bin:$PATH"
+          melos bootstrap
+
+      - name: Generate Android project and configure AdMob test app ID
+        script: |
+          cd apps/image_compressor
+          if [ ! -d android ]; then
+            flutter create --platforms=android --org com.utilityapps .
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text()
+          if 'android:label="image_compressor"' in text:
+              text = text.replace(
+                  'android:label="image_compressor"',
+                  'android:label="Image Compressor"'
+              )
+
+          app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
+          if app_id_key not in text:
+              meta = """
+                  <!-- Google sample AdMob app ID. Replace before production release. -->
+                  <meta-data
+                      android:name="com.google.android.gms.ads.APPLICATION_ID"
+                      android:value="ca-app-pub-3940256099942544~3347511713" />
+              """
+              text = text.replace("</application>", meta + "\n    </application>")
+          manifest.write_text(text)
+          PY
+
+      - name: Resolve app dependencies and analyze
+        script: |
+          cd apps/image_compressor
+          flutter pub get
+          flutter analyze
+
+      - name: Build release APK
+        script: |
+          cd apps/image_compressor
+          flutter build apk --release
+
+      - name: Build release AAB
+        script: |
+          cd apps/image_compressor
+          flutter build appbundle --release
+
+    artifacts:
+      - apps/image_compressor/build/app/outputs/flutter-apk/*.apk
+      - apps/image_compressor/build/app/outputs/bundle/release/*.aab
+      - apps/image_compressor/build/**/outputs/**/*.mapping.txt
+      - /tmp/xcodebuild_logs/*.log
