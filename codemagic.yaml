@@ -1,6 +1,6 @@
 workflows:
   image-compressor-android:
-    name: Image Compressor - Android APK and AAB
+    name: Image Compressor by SVSystem - Android APK and AAB
     max_build_duration: 60
     environment:
       flutter: stable
@@ -11,7 +11,7 @@ workflows:
           export PATH="$HOME/.pub-cache/bin:$PATH"
           melos bootstrap
 
-      - name: Generate Android project and configure AdMob test app ID
+      - name: Generate Android project and configure SVSystem branding and AdMob
         script: |
           cd apps/image_compressor
           if [ ! -d android ]; then
@@ -22,11 +22,9 @@ workflows:
 
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           text = manifest.read_text()
-          if 'android:label="image_compressor"' in text:
-              text = text.replace(
-                  'android:label="image_compressor"',
-                  'android:label="Image Compressor"'
-              )
+          import re
+          text = re.sub(r'android:label="[^"]+"', 'android:label="Image Compressor by SVSystem"', text, count=1)
+          text = re.sub(r'android:icon="[^"]+"', 'android:icon="@drawable/ic_sv_image_compressor"', text, count=1)
 
           app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
           if app_id_key not in text:
@@ -38,6 +36,22 @@ workflows:
               """
               text = text.replace("</application>", meta + "\n    </application>")
           manifest.write_text(text)
+
+          icon = Path("android/app/src/main/res/drawable/ic_sv_image_compressor.xml")
+          icon.parent.mkdir(parents=True, exist_ok=True)
+          icon.write_text("""<?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp" android:height="108dp"
+              android:viewportWidth="108" android:viewportHeight="108">
+              <path android:fillColor="#0758C8" android:pathData="M0,0h108v108h-108z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M20,22h58a8,8 0,0 1,8 8v39a8,8 0,0 1,-8 8h-58a8,8 0,0 1,-8 -8v-39a8,8 0,0 1,8 -8z"/>
+              <path android:fillColor="#43B7F4" android:pathData="M18,31h62v42h-62z"/>
+              <path android:fillColor="#0758C8" android:pathData="M18,64l18,-19 13,13 9,-10 22,25h-62z"/>
+              <path android:fillColor="#FFC928" android:pathData="M64,34a7,7 0,1 0,14 0a7,7 0,1 0,-14 0"/>
+              <path android:fillColor="#082B63" android:pathData="M61,62h33a8,8 0,0 1,8 8v23a8,8 0,0 1,-8 8h-33a8,8 0,0 1,-8 -8v-23a8,8 0,0 1,8 -8z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M64,69l-1,5 5,-1 4,-4 -4,-4zM89,69l-4,-4 -4,4 4,4 5,1zM64,88l4,4 4,-4 -4,-4 -5,-1zM89,88l-5,-1 -4,4 4,4 5,-4z"/>
+          </vector>
+          """)
           PY
 
       - name: Resolve app dependencies and analyze
