@@ -25,7 +25,7 @@ workflows:
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           text = manifest.read_text()
           import re
-          text = re.sub(r'android:label="[^"]+"', 'android:label="Image Compressor by SVSystem"', text, count=1)
+          text = re.sub(r'android:label="[^"]+"', 'android:label="Image Compressor"', text, count=1)
           text = re.sub(r'android:icon="[^"]+"', 'android:icon="@drawable/ic_sv_image_compressor"', text, count=1)
 
           # The device bugreport shows a launch-time crash inside WorkManager's
