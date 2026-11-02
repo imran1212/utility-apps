@@ -156,6 +156,11 @@ class _BrandSplashScreenState extends State<_BrandSplashScreen> {
                 const Text(
                   'Small Tools for Everyday Use',
                   style: TextStyle(color: Color(0xFF536987), fontSize: 12),
+                const SizedBox(height: 8),
+                const Text(
+                  'Diagnostic build 2 • v1.0.1',
+                  style: TextStyle(color: Color(0xFF536987), fontSize: 10),
+                ),
                 ),
               ],
             ),
