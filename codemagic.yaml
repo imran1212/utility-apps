@@ -50,7 +50,7 @@ workflows:
               </provider>
           """
           if "androidx.work.WorkManagerInitializer" not in text:
-              text = text.replace("</application>", work_manager_override + "\\n    </application>")
+              text = text.replace("</application>", work_manager_override + "\n    </application>")
 
           app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
           if app_id_key not in text:
