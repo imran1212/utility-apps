@@ -30,6 +30,14 @@ manifest = Path("android/app/src/main/AndroidManifest.xml")
 text = manifest.read_text()
 app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
 test_app_id = "ca-app-pub-3940256099942544~3347511713"
+
+if 'android:label="image_compressor"' in text:
+    text = text.replace('android:label="image_compressor"', 'android:label="Image Compressor"')
+
+permission = '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />'
+if permission not in text:
+    text = text.replace("<application", f"    {permission}\n    <application", 1)
+
 if app_id_key not in text:
     meta = f'''\n        <!-- Google sample AdMob app ID. Replace before production release. -->
         <meta-data
@@ -37,12 +45,15 @@ if app_id_key not in text:
             android:value="{test_app_id}" />
 '''
     text = text.replace("</application>", meta + "    </application>")
-    manifest.write_text(text)
+
+manifest.write_text(text)
 PY
 
 flutter pub get
 flutter analyze
-flutter test
+if [ -d test ]; then
+  flutter test
+fi
 flutter build apk --release
 flutter build appbundle --release
 

@@ -18,7 +18,7 @@ melos bootstrap
 bash tool/build_image_compressor.sh
 ```
 
-The build script runs dependency resolution, static analysis, tests, then creates both APK and AAB.
+The build script resolves dependencies, runs static analysis and creates both APK and AAB. It runs Flutter tests only when the app has a test directory.
 
 Outputs:
 - `apps/image_compressor/build/app/outputs/flutter-apk/app-release.apk`

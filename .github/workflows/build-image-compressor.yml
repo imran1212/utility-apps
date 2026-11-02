@@ -38,13 +38,18 @@ jobs:
             flutter create --platforms=android --org com.utilityapps .
           fi
 
-      - name: Configure AdMob test application ID
+      - name: Configure app label, gallery permission and AdMob test app ID
         working-directory: apps/image_compressor
         run: |
           python3 - <<'PY'
           from pathlib import Path
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           text = manifest.read_text()
+          if 'android:label="image_compressor"' in text:
+              text = text.replace('android:label="image_compressor"', 'android:label="Image Compressor"')
+          permission = '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />'
+          if permission not in text:
+              text = text.replace("<application", f"    {permission}\\n    <application", 1)
           marker = "com.google.android.gms.ads.APPLICATION_ID"
           if marker not in text:
               meta = """
@@ -53,8 +58,8 @@ jobs:
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
                       android:value="ca-app-pub-3940256099942544~3347511713" />
               """
-              text = text.replace("</application>", meta + "\n    </application>")
-              manifest.write_text(text)
+              text = text.replace("</application>", meta + "\\n    </application>")
+          manifest.write_text(text)
           PY
 
       - name: Analyze and test
@@ -62,7 +67,7 @@ jobs:
         run: |
           flutter pub get
           flutter analyze
-          flutter test
+          if [ -d test ]; then flutter test; fi
 
       - name: Build APK and AAB
         working-directory: apps/image_compressor
