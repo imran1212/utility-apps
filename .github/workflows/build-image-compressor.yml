@@ -1,0 +1,79 @@
+name: Build Image Compressor APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'apps/image_compressor/**'
+      - 'packages/**'
+      - 'melos.yaml'
+      - 'pubspec.yaml'
+      - '.github/workflows/build-image-compressor.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Melos and bootstrap workspace
+        run: |
+          dart pub global activate melos 6.3.2
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+          melos bootstrap
+
+      - name: Generate Android project files if missing
+        working-directory: apps/image_compressor
+        run: |
+          if [ ! -d android ]; then
+            flutter create --platforms=android --org com.utilityapps .
+          fi
+
+      - name: Configure AdMob test application ID
+        working-directory: apps/image_compressor
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text()
+          marker = "com.google.android.gms.ads.APPLICATION_ID"
+          if marker not in text:
+              meta = """
+                  <!-- Google test AdMob app ID. Replace before production release. -->
+                  <meta-data
+                      android:name="com.google.android.gms.ads.APPLICATION_ID"
+                      android:value="ca-app-pub-3940256099942544~3347511713" />
+              """
+              text = text.replace("</application>", meta + "\n    </application>")
+              manifest.write_text(text)
+          PY
+
+      - name: Build release APK
+        working-directory: apps/image_compressor
+        run: |
+          flutter pub get
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-compressor-release-apk
+          path: apps/image_compressor/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
