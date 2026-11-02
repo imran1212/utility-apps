@@ -106,14 +106,8 @@ workflows:
           cd apps/image_compressor
           flutter build apk --release
 
-      - name: Build release AAB
-        script: |
-          cd apps/image_compressor
-          flutter build appbundle --release
-
     artifacts:
       - apps/image_compressor/build/branding/image_compressor_512.png
       - apps/image_compressor/build/app/outputs/flutter-apk/*.apk
-      - apps/image_compressor/build/app/outputs/bundle/release/*.aab
       - apps/image_compressor/build/**/outputs/**/*.mapping.txt
       - /tmp/xcodebuild_logs/*.log
