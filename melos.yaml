@@ -1,0 +1,19 @@
+name: utility_apps
+packages:
+  - apps/**
+  - packages/**
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  analyze:
+    run: melos exec -- flutter analyze
+    description: Analyze all Flutter apps and packages.
+  test:
+    run: melos exec --dir-exists=test -- flutter test
+    description: Run tests where test directories exist.
+  clean:
+    run: melos exec -- flutter clean
+    description: Clean all workspace projects.

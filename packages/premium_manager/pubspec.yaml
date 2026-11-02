@@ -1,0 +1,10 @@
+name: premium_manager
+description: Shared premium entitlement abstraction.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+dependencies:
+  flutter:
+    sdk: flutter
