@@ -95,6 +95,25 @@ class _BrandSplashScreenState extends State<_BrandSplashScreen> {
                     children: [
                       const Icon(Icons.image_rounded, size: 66, color: Colors.white),
                       Positioned(
+                        left: 9,
+                        top: 9,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: _brandYellow,
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          child: const Text(
+                            'SV',
+                            style: TextStyle(
+                              color: _brandNavy,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
                         right: 9,
                         bottom: 9,
                         child: Container(
