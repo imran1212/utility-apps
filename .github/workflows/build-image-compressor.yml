@@ -1,14 +1,7 @@
-name: Build Image Compressor APK
+name: Build Image Compressor (manual only)
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'apps/image_compressor/**'
-      - 'packages/**'
-      - 'melos.yaml'
-      - 'pubspec.yaml'
-      - '.github/workflows/build-image-compressor.yml'
 
 permissions:
   contents: read
@@ -55,7 +48,7 @@ jobs:
           marker = "com.google.android.gms.ads.APPLICATION_ID"
           if marker not in text:
               meta = """
-                  <!-- Google test AdMob app ID. Replace before production release. -->
+                  <!-- Google sample AdMob app ID. Replace before production release. -->
                   <meta-data
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
                       android:value="ca-app-pub-3940256099942544~3347511713" />
@@ -64,16 +57,25 @@ jobs:
               manifest.write_text(text)
           PY
 
-      - name: Build release APK
+      - name: Analyze and test
         working-directory: apps/image_compressor
         run: |
           flutter pub get
-          flutter build apk --release
+          flutter analyze
+          flutter test
 
-      - name: Upload APK
+      - name: Build APK and AAB
+        working-directory: apps/image_compressor
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: image-compressor-release-apk
-          path: apps/image_compressor/build/app/outputs/flutter-apk/app-release.apk
+          name: image-compressor-android-builds
+          path: |
+            apps/image_compressor/build/app/outputs/flutter-apk/app-release.apk
+            apps/image_compressor/build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 7
