@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:ad_manager/ad_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
 import 'package:image_engine/image_engine.dart';
@@ -71,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _result = result;
         _output = output;
       });
-      AdService.onCompressionCompleted();
     } catch (error) {
       if (mounted) {
         setState(() => _error = 'Compression failed. Please try another image.');
@@ -438,18 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
-          ),
-          child: const BannerAdSlot(adUnitId: AdService.androidTestBannerId),
-        ),
-      ),
+
     );
   }
 }
