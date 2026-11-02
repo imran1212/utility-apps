@@ -21,9 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final ImagePicker _picker = ImagePicker();
   final ImageCompressionService _compressor = const ImageCompressionService();
   final InAppPurchase _billing = InAppPurchase.instance;
-  static const _premiumId = 'svsystem_image_compressor_premium_lifetime';
+  static const _monthlyPremiumId = 'svsystem_image_compressor_premium_monthly';
+  static const _lifetimePremiumId = 'svsystem_image_compressor_premium_lifetime';
+  static const _premiumIds = {_monthlyPremiumId, _lifetimePremiumId};
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
-  ProductDetails? _premiumProduct;
+  ProductDetails? _monthlyProduct;
+  ProductDetails? _lifetimeProduct;
   bool _premium = false;
   bool _purchasePending = false;
   bool _billingAvailable = false;
@@ -50,9 +53,15 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       _billingAvailable = await _billing.isAvailable();
       if (_billingAvailable) {
-        final response = await _billing.queryProductDetails({_premiumId});
-        if (mounted) setState(() => _premiumProduct =
-            response.productDetails.isEmpty ? null : response.productDetails.first);
+        final response = await _billing.queryProductDetails(_premiumIds);
+        if (mounted) {
+          setState(() {
+            for (final product in response.productDetails) {
+              if (product.id == _monthlyPremiumId) _monthlyProduct = product;
+              if (product.id == _lifetimePremiumId) _lifetimeProduct = product;
+            }
+          });
+        }
         await _billing.restorePurchases();
       }
     } catch (_) {}
@@ -60,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handlePurchases(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
-      if (purchase.productID != _premiumId) continue;
+      if (!_premiumIds.contains(purchase.productID)) continue;
       if (purchase.status == PurchaseStatus.purchased ||
           purchase.status == PurchaseStatus.restored) {
         if (mounted) {
@@ -81,10 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _buyPremium() async {
-    final product = _premiumProduct;
+  Future<void> _buyPremium(ProductDetails? product) async {
     if (!_billingAvailable || product == null) {
-      _showMessage('Premium product is not configured in Google Play yet.', isError: true);
+      _showMessage('This Premium plan is not configured in Google Play yet.', isError: true);
       return;
     }
     setState(() => _purchasePending = true);
@@ -368,18 +376,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(width: 6),
                       Text('SVSystem Premium', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF082B63))),
                       Spacer(),
-                      Text('ONE-TIME', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800)),
+                      Text('CHOOSE A PLAN', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800)),
                     ]),
                     const SizedBox(height: 5),
                     const Text('Multi-image compression • Save all together • No ads'),
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      Expanded(child: FilledButton(
-                        onPressed: _purchasePending ? null : _buyPremium,
-                        child: Text(_purchasePending ? 'Please wait…' : 'Unlock Premium • ' + (_premiumProduct?.price ?? r'$0.99')),
-                      )),
-                      TextButton(onPressed: _restorePremium, child: const Text('Restore')),
-                    ]),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _purchasePending ? null : () => _buyPremium(_monthlyProduct),
+                        child: Text(_purchasePending ? 'Please wait…' : 'Monthly • ' + (_monthlyProduct?.price ?? r'$0.99') + '/month'),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: _purchasePending ? null : () => _buyPremium(_lifetimeProduct),
+                        child: Text('Lifetime • ' + (_lifetimeProduct?.price ?? r'$49.00') + ' one-time'),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(onPressed: _restorePremium, child: const Text('Restore purchases')),
+                    ),
                   ]),
                 ),
               ),
