@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:ad_manager/ad_manager.dart';
 import 'package:common_ui/common_ui.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
@@ -9,6 +12,7 @@ const _brandYellow = Color(0xFFFFC928);
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ImageCompressorApp());
+  unawaited(AdService.initialize());
 }
 
 class ImageCompressorApp extends StatelessWidget {
@@ -156,11 +160,6 @@ class _BrandSplashScreenState extends State<_BrandSplashScreen> {
                 const Text(
                   'Small Tools for Everyday Use',
                   style: TextStyle(color: Color(0xFF536987), fontSize: 12),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Diagnostic build 2 • v1.0.1',
-                  style: TextStyle(color: Color(0xFF536987), fontSize: 10),
                 ),
               ],
             ),
