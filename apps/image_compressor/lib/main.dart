@@ -45,13 +45,18 @@ class _BrandSplashScreenState extends State<_BrandSplashScreen> {
     super.initState();
     Future<void>.delayed(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => const HomeScreen(),
-          transitionDuration: const Duration(milliseconds: 350),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
+      AdService.showAppOpenAd(
+        onComplete: () {
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder<void>(
+              pageBuilder: (_, __, ___) => const HomeScreen(),
+              transitionDuration: const Duration(milliseconds: 350),
+              transitionsBuilder: (_, animation, __, child) =>
+                  FadeTransition(opacity: animation, child: child),
+            ),
+          );
+        },
       );
     });
   }
