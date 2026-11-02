@@ -175,7 +175,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xFF0758C8),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.compress_rounded, color: Colors.white),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(Icons.image_rounded, color: Colors.white, size: 25),
+                        const Positioned(
+                          right: 2,
+                          bottom: 2,
+                          child: Icon(Icons.compress_rounded, color: Color(0xFFFFC928), size: 16),
+                        ),
+                        Positioned(
+                          left: -2,
+                          top: -3,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFC928),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'SV',
+                              style: TextStyle(
+                                color: Color(0xFF082B63),
+                                fontSize: 7,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 11),
                   const Expanded(
