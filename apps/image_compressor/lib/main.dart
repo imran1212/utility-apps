@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:ad_manager/ad_manager.dart';
 import 'package:common_ui/common_ui.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
@@ -9,10 +6,9 @@ const _brandBlue = Color(0xFF0758C8);
 const _brandNavy = Color(0xFF082B63);
 const _brandYellow = Color(0xFFFFC928);
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ImageCompressorApp());
-  unawaited(AdService.initialize());
 }
 
 class ImageCompressorApp extends StatelessWidget {
