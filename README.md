@@ -2,6 +2,10 @@
 
 Flutter + Melos monorepo for independent Android utility apps with shared packages.
 
+## SVSystem development rules
+
+All apps follow the [SVSystem app development and Play Store release rules](docs/SVSYSTEM_APP_RULES.md), covering branding, monetization, per-app branches, build targets and release readiness.
+
 ## Repository layout
 - `apps/` — independently publishable Flutter applications
 - `packages/` — reusable Flutter/Dart packages
