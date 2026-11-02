@@ -32,17 +32,17 @@ import re
 gradle = Path("android/app/build.gradle")
 if not gradle.exists():
     gradle = Path("android/app/build.gradle.kts")
+if not gradle.exists():
+    raise SystemExit("Android app Gradle file was not found.")
 text = gradle.read_text()
-dependency = "implementation 'id.zelory:compressor:3.0.1'"
-if gradle.name == "build.gradle":
-    if dependency not in text:
-        if "dependencies {" not in text:
-            raise SystemExit("Could not find dependencies block in Android app Gradle file.")
-        text = text.replace("dependencies {", "dependencies {\\n    " + dependency, 1)
+if gradle.suffix == ".kts":
+    dependency = 'implementation("id.zelory:compressor:3.0.1")'
 else:
-    kotlin_dependency = 'implementation("id.zelory:compressor:3.0.1")'
-    if kotlin_dependency not in text:
-        text = text.replace("dependencies {", "dependencies {\\n    " + kotlin_dependency, 1)
+    dependency = "implementation 'id.zelory:compressor:3.0.1'"
+if dependency not in text:
+    text, count = re.subn(r"dependencies\s*\{", lambda m: m.group(0) + "\n    " + dependency, text, count=1)
+    if count != 1:
+        raise SystemExit("Could not add Compressor dependency to Gradle.")
 gradle.write_text(text)
 
 main_files = list(Path("android/app/src/main/kotlin").rglob("MainActivity.kt"))
@@ -61,11 +61,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
 """
-    package_end = source.find("\\n")
-    source = source[:package_end + 1] + imports + source[package_end + 1:]
-    source = source.replace(
-        "class MainActivity : FlutterActivity()",
-        """class MainActivity : FlutterActivity() {
+    first_line_end = source.find("\n")
+    if first_line_end < 0:
+        raise SystemExit("Unexpected MainActivity.kt format.")
+    source = source[:first_line_end + 1] + imports + source[first_line_end + 1:]
+    activity = """class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "svsystem/image_compressor")
@@ -77,7 +77,7 @@ import java.io.File
                     val quality = (call.argument<Int>("quality") ?: 80).coerceIn(10, 100)
                     val width = (call.argument<Int>("maxWidth") ?: 4096).coerceIn(1, 8192)
                     val height = (call.argument<Int>("maxHeight") ?: 4096).coerceIn(1, 8192)
-                    val targetBytes = (call.argument<Int>("targetBytes") ?: 0).toLong()
+                    val targetBytes = (call.argument<Number>("targetBytes") ?: 0).toLong()
                     if (sourcePath.isNullOrBlank() || !File(sourcePath).isFile) {
                         result.error("INVALID_SOURCE", "Source image does not exist.", null)
                     } else {
@@ -106,7 +106,9 @@ import java.io.File
             }
     }
 }"""
-    )
+    source, count = re.subn(r"class MainActivity\s*:\s*FlutterActivity\(\)", activity, source, count=1)
+    if count != 1:
+        raise SystemExit("Could not install Compressor method channel in MainActivity.")
     main.write_text(source)
 PY
 
