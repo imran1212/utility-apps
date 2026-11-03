@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ad_manager/ad_manager.dart';
 import 'package:common_ui/common_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -217,8 +218,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
                 color: blue,
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: const Icon(Icons.account_balance_wallet_rounded,
-                  color: Colors.white, size: 21),
+              clipBehavior: Clip.antiAlias,
+              child: SvgPicture.asset('assets/brand/budget_planner_mark.svg', fit: BoxFit.cover),
             ),
             const SizedBox(width: 10),
             const Column(
