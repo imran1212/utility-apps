@@ -60,6 +60,18 @@ import id.zelory.compressor.constraint.size
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import android.content.Context
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.graphics.Color
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
+import com.google.android.gms.ads.nativead.MediaView
+import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin
+import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin.NativeAdFactory
 """
     first_line_end = source.find("\n")
     if first_line_end < 0:
@@ -68,6 +80,7 @@ import java.io.File
     activity = """class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        GoogleMobileAdsPlugin.registerNativeAdFactory(flutterEngine, "imageCompressorNative", ImageCompressorNativeAdFactory(this))
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "svsystem/image_compressor")
             .setMethodCallHandler { call, result ->
                 if (call.method != "compress") {
@@ -104,8 +117,59 @@ import java.io.File
                     }
                 }
             }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        GoogleMobileAdsPlugin.unregisterNativeAdFactory(flutterEngine, "imageCompressorNative")
+        super.cleanUpFlutterEngine(flutterEngine)
+    }
+}
+
+class ImageCompressorNativeAdFactory(private val context: Context) : NativeAdFactory {
+    override fun createNativeAd(nativeAd: NativeAd, customOptions: MutableMap<String, Any>?): NativeAdView {
+        val d = context.resources.displayMetrics.density
+        fun dp(v: Int) = (v * d + 0.5f).toInt()
+        val root = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(10), dp(12), dp(12))
+            setBackgroundColor(Color.WHITE)
+        }
+        root.addView(TextView(context).apply { text = "Advertisement"; textSize = 11f; setTextColor(Color.DKGRAY) })
+        val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL }
+        val icon = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dp(52), dp(52)).apply { marginEnd = dp(10) }
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            setImageDrawable(nativeAd.icon?.drawable)
+        }
+        header.addView(icon)
+        val texts = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; layoutParams = LinearLayout.LayoutParams(0, -2, 1f) }
+        val headline = TextView(context).apply {
+            text = nativeAd.headline ?: ""; textSize = 17f; setTextColor(Color.BLACK)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+        texts.addView(headline)
+        val advertiser = TextView(context).apply {
+            text = nativeAd.advertiser ?: nativeAd.body ?: ""; textSize = 12f; setTextColor(Color.DKGRAY)
+        }
+        texts.addView(advertiser)
+        header.addView(texts)
+        root.addView(header)
+        val media = MediaView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, dp(205)).apply { topMargin = dp(10); bottomMargin = dp(10) }
+        }
+        root.addView(media)
+        val cta = Button(context).apply {
+            text = nativeAd.callToAction ?: "Learn more"; isAllCaps = false
+            setTextColor(Color.WHITE); setBackgroundColor(Color.rgb(0, 105, 220))
+        }
+        root.addView(cta, LinearLayout.LayoutParams(-1, dp(48)))
+        return NativeAdView(context).apply {
+            addView(root, ViewGroup.LayoutParams(-1, -2))
+            iconView = icon; headlineView = headline; advertiserView = advertiser
+            mediaView = media; callToActionView = cta; setNativeAd(nativeAd)
+        }
     }
 }"""
+
     source, count = re.subn(r"class MainActivity\s*:\s*FlutterActivity\(\)", activity, source, count=1)
     if count != 1:
         raise SystemExit("Could not install Compressor method channel in MainActivity.")
