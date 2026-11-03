@@ -22,8 +22,8 @@ Future<void> main() async {
   // Ads must never prevent the budgeting app from opening.
   try {
     await AdService.initialize();
-  } catch (_) {
-    // The banner can fail independently; core offline budgeting still works.
+  } catch (error) {
+    debugPrint('AdMob initialization failed; continuing without ads: $error');
   }
   runApp(const BudgetPlannerApp());
 }
@@ -135,7 +135,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
         loadError = null;
         ready = true;
       });
-    } catch (_) {
+    } catch (error) {
+      debugPrint('Unable to load saved budget data: $error');
       if (!mounted) return;
       setState(() {
         loadError = 'Saved budget data could not be read. Your stored data has not been deleted.';
