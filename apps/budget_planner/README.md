@@ -17,8 +17,10 @@ Cashew is GPL-3.0. Any future decision to incorporate or modify its code must fi
 - Spending by category
 - USD and GBP display preference
 - Local persistence using SharedPreferences
-- SVSystem blue/navy/white/yellow identity
-- AdMob banner using Google's official Android test banner ID
+- SVSystem blue/navy/white/yellow identity with a dedicated Budget Planner mark
+- Branded Android adaptive launcher icon and navy launch screen
+- In-app logo and 'by SVSystem' attribution
+- AdMob banner configured with the app's registered AdMob production banner unit ID (live serving remains subject to review)
 
 ## Development
 
@@ -29,13 +31,13 @@ melos bootstrap
 bash tool/build_budget_planner.sh
 ```
 
-The build script creates the Android platform scaffold if it is not present, applies the app label and Google's sample AdMob application ID, runs analysis/tests, and builds APK/AAB.
+The build script creates the Android platform scaffold if it is not present, applies the app label, SVSystem launcher/splash branding and registered AdMob application ID, runs analysis/tests, and builds APK/AAB.
 
 ## Important limitations before production
 
 - USD/GBP selection changes display formatting only; it does not convert existing transaction values.
 - Data is stored locally on this device; backup/sync is not included.
-- The banner uses Google's test ad unit. Replace with verified production IDs only after AdMob app setup.
+- AdMob currently shows the app as requiring review; live ad serving may be limited until review is complete. Never click your own ads.
 - No paid Premium purchase flow is enabled in this MVP.
 - Add a public privacy policy and complete Play Console declarations before release.
 - Verify financial totals, date handling, accessibility and Android lifecycle behavior on real devices.
