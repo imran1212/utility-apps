@@ -420,6 +420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 1.45,
               ),
             ),
+            if (!_premium) const NativeAdSlot(),
             const SizedBox(height: 22),
             _ImagePanel(
               title: _source == null ? 'Original image' : (_premium && _batchSources.length > 1 ? 'Selected images (' + _batchSources.length.toString() + ')' : 'Selected image'),
