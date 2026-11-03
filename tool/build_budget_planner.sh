@@ -33,15 +33,13 @@ text = re.sub(r'android:label="[^"]*"', 'android:label="Budget Planner"', text, 
 if 'android:icon=' not in text:
     text = text.replace('<application', '<application android:icon="@mipmap/ic_launcher"', 1)
 app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
-test_app_id = "ca-app-pub-6855248878156856~9798987362"
-if app_id_key not in text:
-    meta = f'''
-        <!-- Budget Planner AdMob app ID. -->
-        <meta-data
-            android:name="{app_id_key}"
-            android:value="{test_app_id}" />
-'''
-    text = text.replace("</application>", meta + "    </application>")
+admob_app_id = "ca-app-pub-6855248878156856~9798987362"
+meta_pattern = r'<meta-data(?=[^>]*android:name="' + re.escape(app_id_key) + r'")[^>]*/>'
+meta_replacement = f'<meta-data android:name="{app_id_key}" android:value="{admob_app_id}" />'
+if re.search(meta_pattern, text):
+    text = re.sub(meta_pattern, meta_replacement, text, count=1)
+else:
+    text = text.replace("</application>", f'    {meta_replacement}\\n    </application>')
 manifest.write_text(text)
 
 # SVSystem adaptive launcher icon (Android 8+).
