@@ -70,6 +70,11 @@ res = Path("android/app/src/main/res")
     <color name="ic_launcher_background">#102A56</color>
 </resources>
 """)
+(res / "drawable/launch_background.xml").write_text("""<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/ic_launcher_background"/>
+    <item android:gravity="center" android:drawable="@drawable/ic_launcher_foreground"/>
+</layer-list>
+""")
 PY
 
 flutter pub get
