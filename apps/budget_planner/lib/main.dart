@@ -19,7 +19,12 @@ const currencyKey = 'budget_planner_currency_v1';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AdService.initialize();
+  // Ads must never prevent the budgeting app from opening.
+  try {
+    await AdService.initialize();
+  } catch (_) {
+    // The banner can fail independently; core offline budgeting still works.
+  }
   runApp(const BudgetPlannerApp());
 }
 
@@ -95,6 +100,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
   String currency = 'USD';
   int tab = 0;
   bool ready = false;
+  String? loadError;
 
   String get symbol => currency == 'GBP' ? '£' : r'$';
   NumberFormat get money => NumberFormat.currency(
@@ -110,21 +116,32 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
   }
 
   Future<void> loadData() async {
-    final store = await SharedPreferences.getInstance();
-    final raw = store.getString(transactionsKey);
-    final data = raw == null ? <dynamic>[] : jsonDecode(raw) as List<dynamic>;
-    if (!mounted) return;
-    setState(() {
-      prefs = store;
-      entries = data
+    try {
+      final store = await SharedPreferences.getInstance();
+      final raw = store.getString(transactionsKey);
+      final data = raw == null ? <dynamic>[] : jsonDecode(raw) as List<dynamic>;
+      final loadedEntries = data
           .map((item) => MoneyEntry.fromJson(item as Map<String, dynamic>))
           .toList()
         ..sort((a, b) => b.date.compareTo(a.date));
       final savedBudget = store.getDouble(budgetKey) ?? 2000;
-      monthlyBudget = savedBudget.isFinite && savedBudget > 0 ? savedBudget : 2000;
-      currency = store.getString(currencyKey) ?? 'USD';
-      ready = true;
-    });
+      final savedCurrency = store.getString(currencyKey) ?? 'USD';
+      if (!mounted) return;
+      setState(() {
+        prefs = store;
+        entries = loadedEntries;
+        monthlyBudget = savedBudget.isFinite && savedBudget > 0 ? savedBudget : 2000;
+        currency = savedCurrency == 'GBP' ? 'GBP' : 'USD';
+        loadError = null;
+        ready = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        loadError = 'Saved budget data could not be read. Your stored data has not been deleted.';
+        ready = true;
+      });
+    }
   }
 
   Future<void> saveData() async {
@@ -208,6 +225,32 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
   Widget build(BuildContext context) {
     if (!ready) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (loadError != null) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.warning_amber_rounded, size: 44, color: red),
+                const SizedBox(height: 12),
+                Text(loadError!, textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () {
+                    setState(() => ready = false);
+                    loadData();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
     return Scaffold(
       appBar: AppBar(
