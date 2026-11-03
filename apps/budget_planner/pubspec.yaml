@@ -1,0 +1,24 @@
+name: budget_planner
+description: Offline-first personal budget planner by SVSystem.
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.1'
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.5.3
+  intl: ^0.20.2
+  common_ui:
+    path: ../../packages/common_ui
+  ad_manager:
+    path: ../../packages/ad_manager
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/brand/
