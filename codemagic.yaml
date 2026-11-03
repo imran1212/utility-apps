@@ -84,13 +84,7 @@ workflows:
     environment:
       flutter: stable
     scripts:
-      - name: Install Melos and bootstrap workspace
-        script: |
-          dart pub global activate melos 6.3.2
-          export PATH="$HOME/.pub-cache/bin:$PATH"
-          melos bootstrap
-
-      - name: Generate Android project, apply SVSystem branding and configure AdMob
+      - name: Build Budget Planner APK and AAB with SVSystem branding and AdMob
         script: |
           bash tool/build_budget_planner.sh
 
