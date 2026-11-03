@@ -77,3 +77,25 @@ workflows:
       - apps/image_compressor/build/app/outputs/bundle/release/*.aab
       - apps/image_compressor/build/**/outputs/**/*.mapping.txt
       - /tmp/xcodebuild_logs/*.log
+
+  budget-planner-android:
+    name: Budget Planner by SVSystem - Android APK and AAB
+    max_build_duration: 60
+    environment:
+      flutter: stable
+    scripts:
+      - name: Install Melos and bootstrap workspace
+        script: |
+          dart pub global activate melos 6.3.2
+          export PATH="$HOME/.pub-cache/bin:$PATH"
+          melos bootstrap
+
+      - name: Generate Android project, apply SVSystem branding and configure AdMob
+        script: |
+          bash tool/build_budget_planner.sh
+
+    artifacts:
+      - apps/budget_planner/build/app/outputs/flutter-apk/*.apk
+      - apps/budget_planner/build/app/outputs/bundle/release/*.aab
+      - apps/budget_planner/build/**/outputs/**/*.mapping.txt
+      - /tmp/xcodebuild_logs/*.log
