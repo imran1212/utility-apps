@@ -40,6 +40,36 @@ if app_id_key not in text:
 '''
     text = text.replace("</application>", meta + "    </application>")
 manifest.write_text(text)
+
+# SVSystem adaptive launcher icon (Android 8+).
+res = Path("android/app/src/main/res")
+(res / "drawable").mkdir(parents=True, exist_ok=True)
+(res / "mipmap-anydpi-v26").mkdir(parents=True, exist_ok=True)
+(res / "values").mkdir(parents=True, exist_ok=True)
+(res / "drawable/ic_launcher_foreground.xml").write_text("""<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="512" android:viewportHeight="512">
+    <path android:fillColor="#1D4ED8" android:pathData="M104,104 H408 V408 H104 Z"/>
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="24"
+        android:strokeLineCap="round" android:fillColor="#00000000"
+        android:pathData="M162,181 H350 M162,245 H350 M162,309 H267"/>
+    <path android:strokeColor="#FACC15" android:strokeWidth="25"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="#00000000" android:pathData="M296,326 L329,359 L391,284"/>
+    <path android:fillColor="#FACC15" android:pathData="M150,169 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0"/>
+    <path android:fillColor="#FACC15" android:pathData="M150,233 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0"/>
+    <path android:fillColor="#FACC15" android:pathData="M150,297 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0"/>
+</vector>
+""")
+(res / "mipmap-anydpi-v26/ic_launcher.xml").write_text("""<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+</adaptive-icon>
+""")
+(res / "values/ic_launcher_background.xml").write_text("""<resources>
+    <color name="ic_launcher_background">#102A56</color>
+</resources>
+""")
 PY
 
 flutter pub get
