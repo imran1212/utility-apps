@@ -39,7 +39,7 @@ meta_replacement = f'<meta-data android:name="{app_id_key}" android:value="{admo
 if re.search(meta_pattern, text):
     text = re.sub(meta_pattern, meta_replacement, text, count=1)
 else:
-    text = text.replace("</application>", f'    {meta_replacement}\\n    </application>')
+    text = text.replace("</application>", f'    {meta_replacement}\n    </application>')
 manifest.write_text(text)
 
 # SVSystem adaptive launcher icon (Android 8+).
