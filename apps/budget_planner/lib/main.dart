@@ -139,11 +139,11 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
 
   double get income => entries
       .where((entry) => entry.isIncome && isCurrentMonth(entry))
-      .fold(0, (sum, entry) => sum + entry.amount);
+      .fold<double>(0, (sum, entry) => sum + entry.amount);
 
   double get spent => entries
       .where((entry) => !entry.isIncome && isCurrentMonth(entry))
-      .fold(0, (sum, entry) => sum + entry.amount);
+      .fold<double>(0, (sum, entry) => sum + entry.amount);
 
   double get remaining => monthlyBudget - spent;
 
