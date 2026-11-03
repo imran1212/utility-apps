@@ -173,7 +173,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: 'Budget amount',
-            prefixText: symbol + ' ',
+            prefixText: '$symbol ',
             border: const OutlineInputBorder(),
           ),
         ),
@@ -343,7 +343,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Monthly spending', style: TextStyle(color: Colors.white70)),
-              Text((progress * 100).round().toString() + '%',
+              Text('${(progress * 100).round()}%',
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
             ],
           ),
@@ -467,12 +467,12 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           ),
           title: Text(entry.title, maxLines: 1, overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(entry.category + ' · ' + DateFormat.yMMMd().format(entry.date)),
+          subtitle: Text(`${entry.category} · ${DateFormat.yMMMd().format(entry.date)}`),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                (entry.isIncome ? '+' : '−') + money.format(entry.amount),
+                `${entry.isIncome ? '+' : '−'}${money.format(entry.amount)}`,
                 style: TextStyle(
                   color: entry.isIncome ? green : red,
                   fontWeight: FontWeight.w800,
@@ -569,13 +569,13 @@ class _EntryDialogState extends State<EntryDialog> {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Amount',
-                  prefixText: widget.currencySymbol + ' ',
+                  prefixText: '${widget.currencySymbol} ',
                   border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: category,
+                initialValue: category,
                 decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
                 items: (income ? incomeCategories : expenseCategories)
                     .map((item) => DropdownMenuItem(value: item, child: Text(item)))
