@@ -467,12 +467,12 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           ),
           title: Text(entry.title, maxLines: 1, overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(`${entry.category} · ${DateFormat.yMMMd().format(entry.date)}`),
+          subtitle: Text('${entry.category} · ${DateFormat.yMMMd().format(entry.date)}'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                `${entry.isIncome ? '+' : '−'}${money.format(entry.amount)}`,
+                '${entry.isIncome ? '+' : '−'}${money.format(entry.amount)}',
                 style: TextStyle(
                   color: entry.isIncome ? green : red,
                   fontWeight: FontWeight.w800,
