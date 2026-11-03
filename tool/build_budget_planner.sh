@@ -30,10 +30,10 @@ manifest = Path("android/app/src/main/AndroidManifest.xml")
 text = manifest.read_text()
 text = text.replace('android:label="budget_planner"', 'android:label="Budget Planner"')
 app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
-test_app_id = "ca-app-pub-3940256099942544~3347511713"
+test_app_id = "ca-app-pub-6855248878156856~9798987362"
 if app_id_key not in text:
     meta = f'''
-        <!-- Google sample AdMob app ID. Replace before production release. -->
+        <!-- Budget Planner AdMob app ID. -->
         <meta-data
             android:name="{app_id_key}"
             android:value="{test_app_id}" />
