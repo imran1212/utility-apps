@@ -120,7 +120,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           .map((item) => MoneyEntry.fromJson(item as Map<String, dynamic>))
           .toList()
         ..sort((a, b) => b.date.compareTo(a.date));
-      monthlyBudget = store.getDouble(budgetKey) ?? 2000;
+      final savedBudget = store.getDouble(budgetKey) ?? 2000;
+      monthlyBudget = savedBudget.isFinite && savedBudget > 0 ? savedBudget : 2000;
       currency = store.getString(currencyKey) ?? 'USD';
       ready = true;
     });
@@ -185,7 +186,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           FilledButton(
             onPressed: () {
               final parsed = double.tryParse(controller.text.trim());
-              if (parsed != null && parsed > 0) Navigator.pop(dialogContext, parsed);
+              if (parsed != null && parsed.isFinite && parsed > 0) Navigator.pop(dialogContext, parsed);
             },
             child: const Text('Save budget'),
           ),
@@ -358,7 +359,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
             ),
           ),
           const SizedBox(height: 9),
-          Text(money.format(spent) + ' spent of ' + money.format(monthlyBudget),
+          Text('${money.format(spent)} spent of ${money.format(monthlyBudget)}',
               style: const TextStyle(color: Colors.white70, fontSize: 12)),
         ],
       ),
@@ -607,7 +608,7 @@ class _EntryDialogState extends State<EntryDialog> {
             onPressed: () {
               final amount = double.tryParse(amountController.text.trim());
               final title = titleController.text.trim();
-              if (title.isEmpty || amount == null || amount <= 0) return;
+              if (title.isEmpty || amount == null || !amount.isFinite || amount <= 0) return;
               Navigator.pop(
                 context,
                 MoneyEntry(
