@@ -28,7 +28,10 @@ from pathlib import Path
 
 manifest = Path("android/app/src/main/AndroidManifest.xml")
 text = manifest.read_text()
-text = text.replace('android:label="budget_planner"', 'android:label="Budget Planner"')
+import re
+text = re.sub(r'android:label="[^"]*"', 'android:label="Budget Planner"', text, count=1)
+if 'android:icon=' not in text:
+    text = text.replace('<application', '<application android:icon="@mipmap/ic_launcher"', 1)
 app_id_key = "com.google.android.gms.ads.APPLICATION_ID"
 test_app_id = "ca-app-pub-6855248878156856~9798987362"
 if app_id_key not in text:
