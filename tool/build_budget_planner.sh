@@ -23,6 +23,13 @@ if [ ! -d android ]; then
   flutter create --platforms=android --org com.svsystem --project-name budget_planner .
 fi
 
+# flutter create may generate a sample widget test that references MyApp.
+# This app uses BudgetPlannerApp, so remove the unused template test before analysis.
+rm -f test/widget_test.dart
+if [ -d test ] && [ -z "$(find test -type f -not -name '.gitkeep' -print -quit)" ]; then
+  rmdir test 2>/dev/null || true
+fi
+
 python3 - <<'PY'
 from pathlib import Path
 
