@@ -12,6 +12,7 @@ const blue = Color(0xFF1D4ED8);
 const yellow = Color(0xFFFACC15);
 const green = Color(0xFF15803D);
 const red = Color(0xFFDC2626);
+const budgetPlannerBannerAdUnitId = 'ca-app-pub-6855248878156856/3153512956';
 const transactionsKey = 'budget_planner_transactions_v1';
 const budgetKey = 'budget_planner_monthly_budget_v1';
 const currencyKey = 'budget_planner_currency_v1';
@@ -312,7 +313,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
               style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
         ),
         const SizedBox(height: 12),
-        const Center(child: BannerAdSlot(adUnitId: AdService.androidTestBannerId)),
+        const Center(child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId)),
       ],
     );
   }
@@ -451,7 +452,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
             );
           }),
         const SizedBox(height: 16),
-        const Center(child: BannerAdSlot(adUnitId: AdService.androidTestBannerId)),
+        const Center(child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId)),
       ],
     );
   }
