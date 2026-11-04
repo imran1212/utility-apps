@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:ad_manager/ad_manager.dart';
 import 'package:common_ui/common_ui.dart';
@@ -7,11 +8,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const navy = Color(0xFF102A56);
-const blue = Color(0xFF1D4ED8);
+const navy = Color(0xFF061A43);
+const blue = Color(0xFF2563EB);
+const violet = Color(0xFF7C3AED);
+const cyan = Color(0xFF38BDF8);
 const yellow = Color(0xFFFACC15);
-const green = Color(0xFF15803D);
-const red = Color(0xFFDC2626);
+const green = Color(0xFF34D399);
+const red = Color(0xFFFB7185);
+const glassBorder = Color(0x66FFFFFF);
+const mutedText = Color(0xFFB8C8E8);
 const budgetPlannerBannerAdUnitId = 'ca-app-pub-6855248878156856/3153512956';
 const transactionsKey = 'budget_planner_transactions_v1';
 const budgetKey = 'budget_planner_monthly_budget_v1';
@@ -71,15 +76,30 @@ class BudgetPlannerApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         title: 'Budget Planner by SVSystem',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.light().copyWith(
-          scaffoldBackgroundColor: const Color(0xFFF4F7FC),
-          colorScheme: AppTheme.light().colorScheme.copyWith(
-                primary: blue,
-                secondary: yellow,
-              ),
+        theme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: navy,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: blue,
+            brightness: Brightness.dark,
+            surface: const Color(0xFF102B60),
+          ),
           appBarTheme: const AppBarTheme(
-            backgroundColor: navy,
+            backgroundColor: Colors.transparent,
             foregroundColor: Colors.white,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+          ),
+          dialogTheme: DialogThemeData(
+            backgroundColor: const Color(0xFF102B60),
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.07),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
           ),
         ),
         home: const BudgetHomePage(),
@@ -254,27 +274,32 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
       );
     }
     return Scaffold(
+      extendBody: true,
+      backgroundColor: navy,
       appBar: AppBar(
+        toolbarHeight: 76,
         title: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: blue,
-                borderRadius: BorderRadius.circular(11),
+                gradient: const LinearGradient(colors: [blue, violet]),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: glassBorder),
+                boxShadow: const [BoxShadow(color: Color(0x5538BDF8), blurRadius: 18)],
               ),
               clipBehavior: Clip.antiAlias,
               child: SvgPicture.asset('assets/brand/budget_planner_mark.svg', fit: BoxFit.cover),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Budget Planner',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
                 Text('by SVSystem',
-                    style: TextStyle(fontSize: 10, color: yellow)),
+                    style: TextStyle(fontSize: 11, color: yellow, fontWeight: FontWeight.w600)),
               ],
             ),
           ],
@@ -282,42 +307,59 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: currency,
-                dropdownColor: navy,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-                iconEnabledColor: Colors.white,
-                items: const [
-                  DropdownMenuItem(value: 'USD', child: Text('USD')),
-                  DropdownMenuItem(value: 'GBP', child: Text('GBP')),
-                ],
-                onChanged: (value) async {
-                  if (value == null) return;
-                  setState(() => currency = value);
-                  await saveData();
-                },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: glassBorder),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: currency,
+                  dropdownColor: const Color(0xFF102B60),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                  iconEnabledColor: Colors.white,
+                  items: const [
+                    DropdownMenuItem(value: 'USD', child: Text('USD')),
+                    DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                  ],
+                  onChanged: (value) async {
+                    if (value == null) return;
+                    setState(() => currency = value);
+                    await saveData();
+                  },
+                ),
               ),
             ),
           ),
         ],
       ),
-      body: SafeArea(child: tab == 2 ? budgetPage() : overviewPage()),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: addEntry,
-        backgroundColor: blue,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Add transaction'),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: tab,
-        onDestinationSelected: (value) => setState(() => tab = value),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Overview'),
-          NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'Activity'),
-          NavigationDestination(icon: Icon(Icons.pie_chart_outline), label: 'Budget'),
+      body: Stack(
+        children: [
+          const Positioned.fill(child: PremiumBackdrop()),
+          SafeArea(child: tab == 2 ? budgetPage() : overviewPage()),
         ],
+      ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: [cyan, blue, violet]),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
+          boxShadow: const [BoxShadow(color: Color(0x663B82F6), blurRadius: 24, offset: Offset(0, 8))],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: addEntry,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add_rounded, size: 25),
+          label: const Text('Add transaction', style: TextStyle(fontWeight: FontWeight.w700)),
+        ),
+      ),
+      bottomNavigationBar: PremiumNavigationBar(
+        selectedIndex: tab,
+        onSelected: (value) => setState(() => tab = value),
       ),
     );
   }
