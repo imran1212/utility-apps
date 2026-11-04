@@ -368,9 +368,6 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 110),
       children: [
-        Text(DateFormat('MMMM yyyy').format(DateTime.now()),
-            style: const TextStyle(color: mutedText, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 12),
         balanceCard(),
         const SizedBox(height: 14),
         Row(
@@ -533,17 +530,22 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 110),
       children: [
         const Text('Your monthly budget',
-            style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800, color: navy)),
+            style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900, color: Colors.white)),
         const SizedBox(height: 14),
         balanceCard(),
         const SizedBox(height: 16),
-        Card(
+        GlassPanel(
+          radius: 20,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
           child: ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: const CircleAvatar(
-                backgroundColor: Color(0xFFEFF6FF),
-                child: Icon(Icons.edit_outlined, color: blue)),
-            title: const Text('Monthly spending limit'),
-            subtitle: Text(money.format(monthlyBudget)),
+              backgroundColor: Color(0x3328A8FF),
+              child: Icon(Icons.tune_rounded, color: cyan),
+            ),
+            title: const Text('Monthly spending limit',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            subtitle: Text(money.format(monthlyBudget), style: const TextStyle(color: mutedText)),
             trailing: TextButton(onPressed: editBudget, child: const Text('Edit')),
           ),
         ),
