@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:ad_manager/ad_manager.dart';
-import 'package:common_ui/common_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -387,9 +386,9 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Recent activity',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: navy)),
-            TextButton(onPressed: () => setState(() => tab = 1), child: const Text('See all')),
+            const Text('Recent Activity',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.4)),
+            TextButton(onPressed: () => setState(() => tab = 1), child: const Text('See all →', style: TextStyle(color: cyan, fontWeight: FontWeight.w700))),
           ],
         ),
         if (visible.isEmpty)
@@ -412,69 +411,112 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
   Widget balanceCard() {
     final progress = (spent / monthlyBudget).clamp(0.0, 1.0);
     final over = spent > monthlyBudget;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [navy, blue],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassPanel(
+      radius: 30,
+      padding: const EdgeInsets.all(21),
+      gradient: const [Color(0xCC1254A6), Color(0xAA102B60), Color(0x887C3AED)],
+      child: Row(
         children: [
-          const Text('Budget remaining', style: TextStyle(color: Colors.white70, fontSize: 13)),
-          const SizedBox(height: 8),
-          Text(money.format(remaining),
-              style: const TextStyle(color: Colors.white, fontSize: 31, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Monthly spending', style: TextStyle(color: Colors.white70)),
-              Text('${(progress * 100).round()}%',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-            ],
-          ),
-          const SizedBox(height: 9),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 9,
-              backgroundColor: Colors.white24,
-              valueColor: AlwaysStoppedAnimation(over ? yellow : Colors.white),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_month_rounded, size: 17, color: cyan),
+                    const SizedBox(width: 8),
+                    Text(DateFormat('MMMM yyyy').format(DateTime.now()),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text('Budget remaining', style: TextStyle(color: mutedText, fontSize: 13)),
+                const SizedBox(height: 5),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(money.format(remaining),
+                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: -1)),
+                ),
+                const SizedBox(height: 18),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 9,
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation(over ? yellow : cyan),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text('${money.format(spent)} spent of ${money.format(monthlyBudget)}',
+                    style: const TextStyle(color: mutedText, fontSize: 11)),
+              ],
             ),
           ),
-          const SizedBox(height: 9),
-          Text('${money.format(spent)} spent of ${money.format(monthlyBudget)}',
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 88,
+            height: 88,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox.expand(
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 8,
+                    backgroundColor: Colors.white12,
+                    valueColor: AlwaysStoppedAnimation(over ? yellow : cyan),
+                    strokeCap: StrokeCap.round,
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${(progress * 100).round()}%',
+                        style: const TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w900)),
+                    const Text('used', style: TextStyle(color: mutedText, fontSize: 11)),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget smallStat(String label, double amount, Color color, IconData icon) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE5EAF2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget smallStat(String label, double amount, Color color, IconData icon) => GlassPanel(
+        radius: 22,
+        padding: const EdgeInsets.all(15),
+        gradient: [color.withValues(alpha: 0.25), Colors.white.withValues(alpha: 0.07)],
+        child: Row(
           children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 10),
-            Text(label, style: const TextStyle(color: Color(0xFF64748B))),
-            const SizedBox(height: 3),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(money.format(amount),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: navy)),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.45)]),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [BoxShadow(color: color.withValues(alpha: 0.30), blurRadius: 14)],
+              ),
+              child: Icon(icon, color: Colors.white, size: 22),
+            ),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: const TextStyle(color: mutedText, fontSize: 12)),
+                  const SizedBox(height: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(money.format(amount),
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Colors.white)),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
