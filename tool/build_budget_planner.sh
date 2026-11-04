@@ -47,6 +47,28 @@ if re.search(meta_pattern, text):
     text = re.sub(meta_pattern, meta_replacement, text, count=1)
 else:
     text = text.replace("</application>", f'    {meta_replacement}\n    </application>')
+# WorkManager's automatic AndroidX Startup initializer is crashing before
+# Flutter starts on the reported Android 16 / OnePlus device while creating
+# androidx.work.impl.WorkDatabase. This app does not schedule background work,
+# so disable only that initializer; leave other AndroidX Startup initializers intact.
+if 'xmlns:tools=' not in text:
+    text = text.replace(
+        '<manifest ',
+        '<manifest xmlns:tools="http://schemas.android.com/tools" ',
+        1,
+    )
+work_manager_removal = """        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                tools:node="remove" />
+        </provider>
+"""
+if 'androidx.work.WorkManagerInitializer' not in text:
+    text = text.replace("</application>", work_manager_removal + "    </application>")
 manifest.write_text(text)
 
 # SVSystem adaptive launcher icon (Android 8+).
