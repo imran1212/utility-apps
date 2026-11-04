@@ -23,6 +23,62 @@ if [ ! -d android ]; then
   flutter create --platforms=android --org com.svsystem --project-name budget_planner .
 fi
 
+# Release builds must use the dedicated Codemagic Android keystore.
+if [ -z "${CM_KEYSTORE_PATH:-}" ] || [ -z "${CM_KEYSTORE_PASSWORD:-}" ] || [ -z "${CM_KEY_ALIAS:-}" ] || [ -z "${CM_KEY_PASSWORD:-}" ]; then
+  echo "Missing Android signing identity. Add the 'budget-planner-keystore' Android keystore in Codemagic and attach it to this workflow." >&2
+  exit 1
+fi
+
+python3 - <<'PY_SIGNING'
+from pathlib import Path
+import re
+
+kotlin = Path("android/app/build.gradle.kts")
+groovy = Path("android/app/build.gradle")
+
+if kotlin.exists():
+    text = kotlin.read_text()
+    if 'create("release")' not in text:
+        signing = """
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("CM_KEYSTORE_PATH"))
+            storePassword = System.getenv("CM_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("CM_KEY_ALIAS")
+            keyPassword = System.getenv("CM_KEY_PASSWORD")
+        }
+    }
+"""
+        text = re.sub(r'(?m)^android\\s*\\{', lambda m: m.group(0) + signing, text, count=1)
+    text = text.replace('signingConfig = signingConfigs.getByName("debug")',
+                        'signingConfig = signingConfigs.getByName("release")')
+    if 'signingConfig = signingConfigs.getByName("release")' not in text:
+        text = re.sub(r'(buildTypes\\s*\\{\\s*release\\s*\\{)',
+                      r'\\1\\n        signingConfig = signingConfigs.getByName("release")', text, count=1)
+    kotlin.write_text(text)
+elif groovy.exists():
+    text = groovy.read_text()
+    if "create('release')" not in text and 'create("release")' not in text:
+        signing = """
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("CM_KEYSTORE_PATH"))
+            storePassword System.getenv("CM_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("CM_KEY_ALIAS")
+            keyPassword System.getenv("CM_KEY_PASSWORD")
+        }
+    }
+"""
+        text = re.sub(r'(?m)^android\\s*\\{', lambda m: m.group(0) + signing, text, count=1)
+    text = text.replace('signingConfig signingConfigs.debug', 'signingConfig signingConfigs.release')
+    if "signingConfig signingConfigs.release" not in text:
+        text = re.sub(r'(buildTypes\\s*\\{\\s*release\\s*\\{)',
+                      r'\\1\\n        signingConfig signingConfigs.release', text, count=1)
+    groovy.write_text(text)
+else:
+    raise SystemExit("Could not find Android app Gradle build file to configure release signing.")
+PY_SIGNING
+
 # flutter create may generate a sample widget test that references MyApp.
 # This app uses BudgetPlannerApp, so remove the unused template test before analysis.
 rm -f test/widget_test.dart
