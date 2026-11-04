@@ -551,24 +551,24 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
         advertisementSlot(),
         const SizedBox(height: 18),
         const Text('Spending by category',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: navy)),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: Colors.white)),
         const SizedBox(height: 8),
         if (categories.isEmpty)
           emptyState()
         else
           ...categories.entries.map((item) {
             final fraction = maxValue == 0 ? 0.0 : item.value / maxValue;
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
+            return GlassPanel(
+              radius: 18,
+              padding: const EdgeInsets.all(14),
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(item.key, style: const TextStyle(fontWeight: FontWeight.w700)),
-                        Text(money.format(item.value)),
+                        Text(item.key, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                        Text(money.format(item.value), style: const TextStyle(color: cyan, fontWeight: FontWeight.w800)),
                       ],
                     ),
                     const SizedBox(height: 9),
@@ -577,8 +577,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
                       child: LinearProgressIndicator(
                         value: fraction,
                         minHeight: 8,
-                        backgroundColor: const Color(0xFFE8EEF8),
-                        color: blue,
+                        backgroundColor: Colors.white12,
+                        color: cyan,
                       ),
                     ),
                   ],
@@ -599,7 +599,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
               padding: EdgeInsets.only(bottom: 4),
               child: Text('ADVERTISEMENT',
                   style: TextStyle(
-                    color: Color(0xFF94A3B8),
+                    color: mutedText,
                     fontSize: 9,
                     letterSpacing: 1.1,
                     fontWeight: FontWeight.w700,
@@ -621,78 +621,98 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
     return items;
   }
 
-  Widget entryTile(MoneyEntry entry) => Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        clipBehavior: Clip.antiAlias,
-        child: ExpansionTile(
-          key: PageStorageKey<String>('transaction-${entry.id}'),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          leading: CircleAvatar(
-            backgroundColor: entry.isIncome ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
-            child: Icon(entry.isIncome ? Icons.south_west : Icons.north_east,
-                color: entry.isIncome ? green : red),
-          ),
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(entry.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${entry.isIncome ? '+' : '−'}${money.format(entry.amount)}',
-                style: TextStyle(
-                  color: entry.isIncome ? green : red,
-                  fontWeight: FontWeight.w800,
+  Widget entryTile(MoneyEntry entry) => Padding(
+        padding: const EdgeInsets.only(bottom: 9),
+        child: GlassPanel(
+          radius: 22,
+          padding: EdgeInsets.zero,
+          gradient: entry.isIncome
+              ? const [Color(0x6634D399), Color(0x331D4ED8)]
+              : const [Color(0x66FB7185), Color(0x331D4ED8)],
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              dividerColor: Colors.transparent,
+              splashColor: Colors.white10,
+              highlightColor: Colors.white10,
+            ),
+            child: ExpansionTile(
+              key: PageStorageKey<String>('transaction-${entry.id}'),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+              iconColor: cyan,
+              collapsedIconColor: Colors.white70,
+              leading: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: entry.isIncome ? [green, const Color(0xFF059669)] : [red, const Color(0xFFBE123C)],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [BoxShadow(color: (entry.isIncome ? green : red).withValues(alpha: 0.25), blurRadius: 12)],
                 ),
+                child: Icon(entry.isIncome ? Icons.north_east_rounded : Icons.south_east_rounded, color: Colors.white),
               ),
-            ],
-          ),
-          subtitle: Text('${entry.category} · ${DateFormat.yMMMd().format(entry.date)}'),
-          children: [
-            const Divider(height: 12),
-            _detailRow('Transaction type', entry.isIncome ? 'Income' : 'Expense'),
-            _detailRow('Description', entry.title),
-            _detailRow('Category', entry.category),
-            _detailRow('Date', DateFormat.yMMMMd().format(entry.date)),
-            _detailRow('Amount', money.format(entry.amount), valueColor: entry.isIncome ? green : red),
-            _detailRow('Transaction ID', entry.id),
-            Align(
-              alignment: Alignment.centerRight,
-              child: PopupMenuButton<String>(
-                tooltip: 'Transaction options',
-                onSelected: (value) {
-                  if (value == 'delete') deleteEntry(entry);
-                },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete_outline, color: red),
-                        SizedBox(width: 8),
-                        Text('Delete transaction'),
-                      ],
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(entry.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white)),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      '${entry.isIncome ? '+' : '−'}${money.format(entry.amount)}',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        color: entry.isIncome ? green : red,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ],
-                child: const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+              ),
+              subtitle: Text('${entry.category} · ${DateFormat.yMMMd().format(entry.date)}',
+                  style: const TextStyle(color: mutedText, fontSize: 12)),
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.07),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Column(
                     children: [
-                      Icon(Icons.delete_outline, size: 18),
-                      SizedBox(width: 6),
-                      Text('Delete transaction'),
+                      _detailRow('Type', entry.isIncome ? 'Income' : 'Expense'),
+                      _detailRow('Description', entry.title),
+                      _detailRow('Category', entry.category),
+                      _detailRow('Date', DateFormat.yMMMMd().format(entry.date)),
+                      _detailRow('Amount', money.format(entry.amount), valueColor: entry.isIncome ? green : red),
+                      _detailRow('Transaction ID', entry.id),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFFF8DA1),
+                            side: const BorderSide(color: Color(0x99FB7185)),
+                            backgroundColor: const Color(0x22FB7185),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                          onPressed: () => deleteEntry(entry),
+                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          label: const Text('Delete transaction'),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       );
 
@@ -703,12 +723,12 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           children: [
             SizedBox(
               width: 112,
-              child: Text(label, style: const TextStyle(color: Color(0xFF64748B))),
+              child: Text(label, style: const TextStyle(color: mutedText)),
             ),
             Expanded(
               child: Text(value,
                   textAlign: TextAlign.end,
-                  style: TextStyle(fontWeight: FontWeight.w600, color: valueColor ?? navy)),
+                  style: TextStyle(fontWeight: FontWeight.w700, color: valueColor ?? Colors.white)),
             ),
           ],
         ),
