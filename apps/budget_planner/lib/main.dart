@@ -17,6 +17,10 @@ const red = Color(0xFFFB7185);
 const glassBorder = Color(0x66FFFFFF);
 const mutedText = Color(0xFFB8C8E8);
 const budgetPlannerBannerAdUnitId = 'ca-app-pub-6855248878156856/3153512956';
+// QA APKs use Google's official test banner; the Play Store AAB uses the real unit.
+const useTestAds = bool.fromEnvironment('USE_TEST_ADS', defaultValue: false);
+String get activeBannerAdUnitId =>
+    useTestAds ? AdService.androidTestBannerId : budgetPlannerBannerAdUnitId;
 const transactionsKey = 'budget_planner_transactions_v1';
 const budgetKey = 'budget_planner_monthly_budget_v1';
 const currencyKey = 'budget_planner_currency_v1';
@@ -618,7 +622,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
   Widget advertisementSlot() => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Center(
-          child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId),
+          child: BannerAdSlot(adUnitId: activeBannerAdUnitId),
         ),
       );
 
