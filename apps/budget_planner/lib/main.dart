@@ -340,25 +340,49 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           SafeArea(child: tab == 2 ? budgetPage() : overviewPage()),
         ],
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [cyan, blue, violet]),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
-          boxShadow: const [BoxShadow(color: Color(0x663B82F6), blurRadius: 24, offset: Offset(0, 8))],
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: addEntry,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          foregroundColor: Colors.white,
-          icon: const Icon(Icons.add_rounded, size: 25),
-          label: const Text('Add transaction', style: TextStyle(fontWeight: FontWeight.w700)),
-        ),
-      ),
-      bottomNavigationBar: PremiumNavigationBar(
-        selectedIndex: tab,
-        onSelected: (value) => setState(() => tab = value),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [cyan, blue, violet]),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
+                  boxShadow: const [
+                    BoxShadow(color: Color(0x663B82F6), blurRadius: 24, offset: Offset(0, 8)),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(22),
+                    onTap: addEntry,
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 22, vertical: 17),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add_rounded, size: 25, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text('Add transaction',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          PremiumNavigationBar(
+            selectedIndex: tab,
+            onSelected: (value) => setState(() => tab = value),
+          ),
+        ],
       ),
     );
   }
@@ -593,21 +617,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
 
   Widget advertisementSlot() => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 4),
-              child: Text('ADVERTISEMENT',
-                  style: TextStyle(
-                    color: mutedText,
-                    fontSize: 9,
-                    letterSpacing: 1.1,
-                    fontWeight: FontWeight.w700,
-                  )),
-            ),
-            Center(child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId)),
-          ],
+        child: Center(
+          child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId),
         ),
       );
 
