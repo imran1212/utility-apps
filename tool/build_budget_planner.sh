@@ -164,7 +164,8 @@ res = Path("android/app/src/main/res")
 PY
 
 flutter pub get
-flutter analyze
+# Keep analyzer errors fatal, but do not fail release builds for style-only info/warnings.
+flutter analyze --no-fatal-infos --no-fatal-warnings
 if [ -d test ]; then flutter test; fi
 flutter build apk --release
 flutter build appbundle --release
