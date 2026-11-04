@@ -339,6 +339,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
             Expanded(child: smallStat('Spent', spent, red, Icons.north_east)),
           ],
         ),
+        const SizedBox(height: 14),
+        if (tab == 0) advertisementSlot(),
         const SizedBox(height: 22),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -351,14 +353,15 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
         if (visible.isEmpty)
           emptyState()
         else
-          ...visible.take(tab == 1 ? visible.length : 5).map(entryTile),
-        const SizedBox(height: 20),
-        const Center(
-          child: Text('Your money. Your plan. Your progress.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
-        ),
-        const SizedBox(height: 12),
-        const Center(child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId)),
+          ...activityListItems(visible.take(tab == 1 ? visible.length : 5).toList()),
+        if (tab == 0) ...[
+          const SizedBox(height: 20),
+          const Center(
+            child: Text('Your money. Your plan. Your progress.',
+                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+          ),
+        ],
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -459,6 +462,8 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
             trailing: TextButton(onPressed: editBudget, child: const Text('Edit')),
           ),
         ),
+        const SizedBox(height: 14),
+        advertisementSlot(),
         const SizedBox(height: 18),
         const Text('Spending by category',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: navy)),
@@ -496,26 +501,62 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
               ),
             );
           }),
-        const SizedBox(height: 16),
-        const Center(child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId)),
       ],
     );
   }
 
+  Widget advertisementSlot() => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: Text('ADVERTISEMENT',
+                  style: TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 9,
+                    letterSpacing: 1.1,
+                    fontWeight: FontWeight.w700,
+                  )),
+            ),
+            Center(child: BannerAdSlot(adUnitId: budgetPlannerBannerAdUnitId)),
+          ],
+        ),
+      );
+
+  List<Widget> activityListItems(List<MoneyEntry> visible) {
+    final items = <Widget>[];
+    for (var index = 0; index < visible.length; index++) {
+      items.add(entryTile(visible[index]));
+      if (tab == 1 && index == 4 && visible.length > 5) {
+        items.add(advertisementSlot());
+      }
+    }
+    return items;
+  }
+
   Widget entryTile(MoneyEntry entry) => Card(
         margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
+        clipBehavior: Clip.antiAlias,
+        child: ExpansionTile(
+          key: PageStorageKey<String>('transaction-${entry.id}'),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           leading: CircleAvatar(
             backgroundColor: entry.isIncome ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
             child: Icon(entry.isIncome ? Icons.south_west : Icons.north_east,
                 color: entry.isIncome ? green : red),
           ),
-          title: Text(entry.title, maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text('${entry.category} · ${DateFormat.yMMMd().format(entry.date)}'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
+          title: Row(
             children: [
+              Expanded(
+                child: Text(entry.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(width: 8),
               Text(
                 '${entry.isIncome ? '+' : '−'}${money.format(entry.amount)}',
                 style: TextStyle(
@@ -523,16 +564,68 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              PopupMenuButton<String>(
+            ],
+          ),
+          subtitle: Text('${entry.category} · ${DateFormat.yMMMd().format(entry.date)}'),
+          children: [
+            const Divider(height: 12),
+            _detailRow('Transaction type', entry.isIncome ? 'Income' : 'Expense'),
+            _detailRow('Description', entry.title),
+            _detailRow('Category', entry.category),
+            _detailRow('Date', DateFormat.yMMMMd().format(entry.date)),
+            _detailRow('Amount', money.format(entry.amount), valueColor: entry.isIncome ? green : red),
+            _detailRow('Transaction ID', entry.id),
+            Align(
+              alignment: Alignment.centerRight,
+              child: PopupMenuButton<String>(
+                tooltip: 'Transaction options',
                 onSelected: (value) {
                   if (value == 'delete') deleteEntry(entry);
                 },
                 itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'delete', child: Text('Delete')),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: red),
+                        SizedBox(width: 8),
+                        Text('Delete transaction'),
+                      ],
+                    ),
+                  ),
                 ],
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.delete_outline, size: 18),
+                      SizedBox(width: 6),
+                      Text('Delete transaction'),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _detailRow(String label, String value, {Color? valueColor}) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 112,
+              child: Text(label, style: const TextStyle(color: Color(0xFF64748B))),
+            ),
+            Expanded(
+              child: Text(value,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontWeight: FontWeight.w600, color: valueColor ?? navy)),
+            ),
+          ],
         ),
       );
 
