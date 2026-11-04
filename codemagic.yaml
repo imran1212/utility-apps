@@ -79,10 +79,12 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
 
   budget-planner-android:
-    name: Budget Planner by SVSystem - Android APK and AAB
+    name: Budget Planner by SVSystem - Signed Android APK and AAB
     max_build_duration: 60
     environment:
       flutter: stable
+      android_signing:
+        - budget-planner-keystore
     scripts:
       - name: Build Budget Planner APK and AAB with SVSystem branding and AdMob
         script: |
