@@ -369,7 +369,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 110),
       children: [
         Text(DateFormat('MMMM yyyy').format(DateTime.now()),
-            style: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+            style: const TextStyle(color: mutedText, fontWeight: FontWeight.w700)),
         const SizedBox(height: 12),
         balanceCard(),
         const SizedBox(height: 14),
@@ -734,22 +734,19 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
         ),
       );
 
-  Widget emptyState() => Container(
+  Widget emptyState() => GlassPanel(
+        radius: 22,
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE5EAF2)),
-        ),
         child: const Column(
           children: [
-            Icon(Icons.receipt_long_outlined, size: 38, color: Color(0xFF94A3B8)),
+            Icon(Icons.receipt_long_rounded, size: 40, color: cyan),
             SizedBox(height: 10),
-            Text('No transactions yet', style: TextStyle(fontWeight: FontWeight.w800)),
+            Text('No transactions yet',
+                style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white)),
             SizedBox(height: 4),
             Text('Add your first income or expense to start planning.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF64748B))),
+                style: TextStyle(color: mutedText)),
           ],
         ),
       );
@@ -866,5 +863,186 @@ class _EntryDialogState extends State<EntryDialog> {
             child: const Text('Save'),
           ),
         ],
+      );
+}
+
+class PremiumBackdrop extends StatelessWidget {
+  const PremiumBackdrop({super.key});
+
+  @override
+  Widget build(BuildContext context) => Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF061638), Color(0xFF0B2E70), Color(0xFF101B55)],
+              ),
+            ),
+          ),
+          Positioned(
+            top: -120,
+            left: -90,
+            child: ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(sigmaX: 65, sigmaY: 65),
+              child: Container(
+                width: 270,
+                height: 270,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [Color(0xAA0EA5E9), Colors.transparent]),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 280,
+            right: -120,
+            child: ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(sigmaX: 75, sigmaY: 75),
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [Color(0x887C3AED), Colors.transparent]),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -140,
+            left: -100,
+            child: ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(sigmaX: 75, sigmaY: 75),
+              child: Container(
+                width: 320,
+                height: 320,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [Color(0xAA2563EB), Colors.transparent]),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+}
+
+class GlassPanel extends StatelessWidget {
+  const GlassPanel({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+    this.radius = 22,
+    this.gradient,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+  final List<Color>? gradient;
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradient ??
+                    [Colors.white.withValues(alpha: 0.19), Colors.white.withValues(alpha: 0.07)],
+              ),
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: glassBorder, width: 1),
+              boxShadow: const [
+                BoxShadow(color: Color(0x33000000), blurRadius: 20, offset: Offset(0, 9)),
+                BoxShadow(color: Color(0x2238BDF8), blurRadius: 18, spreadRadius: -8),
+              ],
+            ),
+            child: child,
+          ),
+        ),
+      );
+}
+
+class PremiumNavigationBar extends StatelessWidget {
+  const PremiumNavigationBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+
+  static const items = [
+    (Icons.grid_view_rounded, 'Overview'),
+    (Icons.receipt_long_rounded, 'Activity'),
+    (Icons.donut_large_rounded, 'Budget'),
+  ];
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: GlassPanel(
+            radius: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            gradient: const [Color(0xAA397BC4), Color(0x99304A86), Color(0xAA142C5C)],
+            child: Row(
+              children: List.generate(items.length, (index) {
+                final selected = selectedIndex == index;
+                final item = items[index];
+                return Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: selected,
+                    label: item.$2,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(22),
+                      onTap: () => onSelected(index),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: selected
+                              ? const LinearGradient(colors: [Color(0xCC0EA5E9), Color(0xCC2563EB), Color(0xAA7C3AED)])
+                              : null,
+                          borderRadius: BorderRadius.circular(22),
+                          border: selected ? Border.all(color: Colors.white70) : null,
+                          boxShadow: selected
+                              ? const [BoxShadow(color: Color(0x6638BDF8), blurRadius: 18)]
+                              : null,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(item.$1, color: Colors.white, size: 23),
+                            const SizedBox(height: 4),
+                            Text(item.$2,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: selected ? FontWeight.w900 : FontWeight.w600,
+                                )),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
       );
 }
