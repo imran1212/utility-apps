@@ -167,8 +167,10 @@ flutter pub get
 # Keep analyzer errors fatal, but do not fail release builds for style-only info/warnings.
 flutter analyze --no-fatal-infos --no-fatal-warnings
 if [ -d test ]; then flutter test; fi
-flutter build apk --release
-flutter build appbundle --release
+# QA APK uses Google's official test banner so ad integration can be verified safely.
+flutter build apk --release --dart-define=USE_TEST_ADS=true
+# Play Store AAB uses the real AdMob banner unit.
+flutter build appbundle --release --dart-define=USE_TEST_ADS=false
 
 echo "APK: $APP_DIR/build/app/outputs/flutter-apk/app-release.apk"
 echo "AAB: $APP_DIR/build/app/outputs/bundle/release/app-release.aab"
