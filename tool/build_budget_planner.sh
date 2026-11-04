@@ -49,12 +49,12 @@ if kotlin.exists():
         }
     }
 """
-        text = re.sub(r'(?m)^android\\s*\\{', lambda m: m.group(0) + signing, text, count=1)
+        text = re.sub(r'(?m)^android\s*\{', lambda m: m.group(0) + signing, text, count=1)
     text = text.replace('signingConfig = signingConfigs.getByName("debug")',
                         'signingConfig = signingConfigs.getByName("release")')
     if 'signingConfig = signingConfigs.getByName("release")' not in text:
-        text = re.sub(r'(buildTypes\\s*\\{\\s*release\\s*\\{)',
-                      r'\\1\\n        signingConfig = signingConfigs.getByName("release")', text, count=1)
+        text = re.sub(r'(buildTypes\s*\{\s*release\s*\{)',
+                      r'\1\n        signingConfig = signingConfigs.getByName("release")', text, count=1)
     kotlin.write_text(text)
 elif groovy.exists():
     text = groovy.read_text()
@@ -69,11 +69,11 @@ elif groovy.exists():
         }
     }
 """
-        text = re.sub(r'(?m)^android\\s*\\{', lambda m: m.group(0) + signing, text, count=1)
+        text = re.sub(r'(?m)^android\s*\{', lambda m: m.group(0) + signing, text, count=1)
     text = text.replace('signingConfig signingConfigs.debug', 'signingConfig signingConfigs.release')
     if "signingConfig signingConfigs.release" not in text:
-        text = re.sub(r'(buildTypes\\s*\\{\\s*release\\s*\\{)',
-                      r'\\1\\n        signingConfig signingConfigs.release', text, count=1)
+        text = re.sub(r'(buildTypes\s*\{\s*release\s*\{)',
+                      r'\1\n        signingConfig signingConfigs.release', text, count=1)
     groovy.write_text(text)
 else:
     raise SystemExit("Could not find Android app Gradle build file to configure release signing.")
