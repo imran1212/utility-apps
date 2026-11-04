@@ -354,6 +354,7 @@ class _BudgetHomePageState extends State<BudgetHomePage> {
           emptyState()
         else
           ...activityListItems(visible.take(tab == 1 ? visible.length : 5).toList()),
+        if (tab == 1 && visible.length <= 5) advertisementSlot(),
         if (tab == 0) ...[
           const SizedBox(height: 20),
           const Center(
