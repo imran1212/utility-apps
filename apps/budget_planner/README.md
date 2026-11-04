@@ -17,7 +17,7 @@ Cashew is GPL-3.0. Any future decision to incorporate or modify its code must fi
 - Spending by category
 - USD and GBP display preference
 - Local persistence using SharedPreferences
-- SVSystem blue/navy/white/yellow identity with a dedicated Budget Planner mark
+- SVSystem identity with a premium iOS-inspired glassmorphism interface\n- Deep navy/blue/violet gradient backdrop, frosted glass cards, glossy progress ring and translucent navigation\n- SVSystem blue/navy/white/yellow identity with a dedicated Budget Planner mark
 - Branded Android adaptive launcher icon and navy launch screen
 - In-app logo and 'by SVSystem' attribution
 - AdMob banner configured with the app's registered AdMob production banner unit ID (live serving remains subject to review)
@@ -31,7 +31,7 @@ melos bootstrap
 bash tool/build_budget_planner.sh
 ```
 
-The build script creates the Android platform scaffold if it is not present, applies the app label, SVSystem launcher/splash branding and registered AdMob application ID, runs analysis/tests, and builds APK/AAB.
+The build script creates the Android platform scaffold if it is not present, applies the app label, SVSystem launcher/splash branding and registered AdMob application ID, runs analysis/tests, and builds APK/AAB. The UI uses Flutter-native gradients, blur and translucent surfaces rather than platform-specific iOS APIs.
 
 ## Important limitations before production
 
